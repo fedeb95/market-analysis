@@ -17,6 +17,7 @@ entrypoints==0.4
 executing==1.1.1
 fastjsonschema==2.16.2
 fonttools==4.37.4
+future==0.18.2
 idna==3.4
 ipykernel==6.16.0
 ipython==8.5.0
@@ -41,6 +42,7 @@ nbclient==0.7.0
 nbconvert==7.2.1
 nbformat==5.7.0
 nest-asyncio==1.5.6
+nolds==0.5.2
 notebook==6.4.12
 numpy==1.23.3
 packaging==21.3
@@ -64,6 +66,7 @@ Pygments==2.13.0
 pyparsing==3.0.9
 pyrsistent==0.18.1
 python-dateutil==2.8.2
+python-dotenv==0.21.0
 pytz==2022.4
 pyzmq==24.0.1
 qtconsole==5.3.2
