@@ -16,5 +16,5 @@
 
 Its `apply` method does so:
 
-    - first it calls the second parameter `apply`, discarding its output. It's useful if it's a `Display` or a `Compose` chaining one or more `Display` among other transforms;
-    - then it calls the first parameter `apply`, returning its result.
+- first it calls the second parameter `apply`, discarding its output. It's useful if it's a `Display` or a `Compose` chaining one or more `Display` among other transforms;
+- then it calls the first parameter `apply`, returning its result.
