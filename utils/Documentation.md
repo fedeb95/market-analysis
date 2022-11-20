@@ -2,16 +2,18 @@
 
 - `source.py`: contains functions to acquire financial data. Each function must output a dataset.
 
-- `transform.py`: contains functions to transform datasets. Each function must have as both input and output
-    - a dataset
-    - an object containing information about transform domain and codomain (i.e. which columns it accepts and which it outputs).
+- `transform.py`: contains functions to transform datasets. Each function must have as both input and output a dataset.
 
-- `display.py`: contains functions to display datasets. They're of the form `DataFrame -> void`.
+- `display.py`: contains functions to display datasets. They're transforms with side effects.
 
-Then it's easy to write pipelines such:
+- `compose.py` contains primitives to build pipelines.
 
-```
-[ pipeline(source, transform1, transform2, [transform3, display1], transfrom4, display2]
-```
+### Compose
+`Compose` is a class to build a list transform by chaining them through the calling of `then`. It's itself a `Transform`.
 
-Better classes and not functions so that they can statically check for input/outputs ?
+### ForkLeft
+`ForkLeft` is a class that takes two transforms as constructor parameters and is itself a `Transform`.
+
+Its `apply` methods does so:
+    - first it call's the second parameter `apply`, discarding its output. It's useful if it's a `Display` or a `Compose` chaining one or more `Display` among other transforms;
+    - then it call's the first parameter `apply`, returning its result.
