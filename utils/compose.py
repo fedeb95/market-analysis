@@ -9,6 +9,10 @@ class Compose(Transform):
         self.transforms.append(t)        
         return self
 
+    def clear(self):
+        self.transforms = []
+        return self
+
     def apply(self, df: DataFrame) -> DataFrame:
         for t in self.transforms:
             df = t.apply(df)

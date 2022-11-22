@@ -21,6 +21,10 @@ class Display(Transform):
         raise NotImplementedError
 
 class Plot(Display):
+
+    def __init__(self, plot):
+        self.plot = plot
+
     def apply(self, df: DataFrame) -> DataFrame:
-        df.plot()
+        self.plot.plot(df)
         return df
