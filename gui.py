@@ -9,6 +9,7 @@ from utils.source import DataSource
 from utils.display import Plot
 from utils.transform import *
 from utils.compose import *
+from utils.portfolio import *
 
 from sizer import Sizer
 
@@ -76,6 +77,8 @@ def main():
                     Pipeline().then(Rolling(250)).then(Mean()),
                     Pipeline().then(Rolling(250)).then(Variance()),
                     Pipeline().then(Rolling(250)).then(StandardDeviation()),
+		    Portfolio(10000, RebalDays(25)),#, asset_percent_list=[('USDEUR=x',0.5)]),
+		    Portfolio(10000, RebalThreshold(0.01))#, asset_percent_list=[('USDEUR=x',0.5)])
                 ]
     funs = [ (t, lambda e=t: add_to_pipeline(pipeline, e, pipe_label, pipe_plot, canvas, entry)) for t in transforms ]
     frame = Frame(win)
