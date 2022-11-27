@@ -27,4 +27,5 @@ class Plot(Display):
 
     def apply(self, df: DataFrame) -> DataFrame:
         self.plot.plot(df)
+        self.plot.legend(df.columns)
         return df
