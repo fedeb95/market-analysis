@@ -1,5 +1,6 @@
 from pandas import DataFrame
 import numpy as np
+import pandas as pd
 
 from utils.transform import Transform
 
@@ -84,7 +85,21 @@ class Portfolio(Transform):
                     print('new_quotes: ' + str(new_quotes))
                 cur_quote_num = new_quotes
             count += 1
-        return DataFrame(values)
+        print('len(df): ' + str(len(df)))
+        print('len(values): ' + str(len(values)))
+        new_df = DataFrame(values, columns=['Portfolio'])
+        #new_df = pd.concat([new_df, df.index], axis=1)
+        #new_df['Date'] = new_df['Date'].astype('datetime64')
+        new_df = new_df.set_index(df.index)
+        new_df = pd.concat([new_df, df], axis=1)
+
+        # TODO bring out relative plot logic!
+        for c in new_df.columns:
+            try:
+                new_df[c] = new_df[c] / sum(new_df[c]) 
+            except:
+                print(new_df[c])
+        return new_df
 
     def __str__(self):
         return "Portfolio<"+str(self.rebal_strat)+">"

@@ -1,5 +1,7 @@
 from utils.transform import Transform
 from pandas import DataFrame
+import matplotlib.pyplot as plt
+import numpy as np
 
 class Display(Transform):
     def apply(self, df: DataFrame) -> DataFrame:
@@ -26,6 +28,10 @@ class Plot(Display):
         self.plot = plot
 
     def apply(self, df: DataFrame) -> DataFrame:
+        colormap = plt.cm.nipy_spectral
+        colors = colormap(np.linspace(0, 1, len(df.columns)))
+        self.plot.set_prop_cycle('color', colors)
+
         self.plot.plot(df)
         self.plot.legend(df.columns)
         return df
