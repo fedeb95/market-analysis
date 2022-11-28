@@ -83,14 +83,17 @@ def main():
     funs = [ (t, lambda e=t: add_to_pipeline(pipeline, e, pipe_label, pipe_plot, canvas, entry)) for t in transforms ]
     frame = Frame(win)
     count = 0
+    row = 0
     for f in funs:
+        if count % 5 == 0:
+            row += 1
         t, fun = f
         b = Button(frame, width=btn_w, height=btn_h, text=str(t), command=fun)
-        b.grid(row=0,column=count)
+        b.grid(row=row, column=count % 5)
         count += 1
     frame.pack()
 
-    ctrl_frame = Frame(win)
+    ctrl_frame = Frame(win, borderwidth=1)
     clear_btn = Button(ctrl_frame, width=btn_w, height=btn_h, text="Clear pipeline", command=lambda: clear(pipeline, pipe_label))
     clear_btn.grid(row=0, column=0)
 
