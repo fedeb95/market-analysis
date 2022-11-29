@@ -29,26 +29,18 @@ class RebalThreshold(RebalStrategy):
         return str(self.threshold)+" percent"
 
 class Portfolio(Transform):
-    def __init__(self, amount, rebal_strat=RebalDays(25), asset_percent_list=None, days_before=500):
+    def __init__(self, amount, rebal_strat=RebalDays(25), days_before=1000):
         """
         asset_percent_list of the form [ ('asset',percent), ... ]
         """
-        self.asset_percent_list = asset_percent_list
-        if asset_percent_list != None:
-            total_perc = sum([ perc for (a, perc) in asset_percent_list ])
-            if total_perc < 1.0:
-                self.asset_percent_list.append(('LIQUID',1.0-total_perc))
         self.amount = amount
         self.days_before = days_before
         self.rebal_strat = rebal_strat
 
     def apply(self, df: DataFrame) -> DataFrame:
-        asset_percent_list = self.asset_percent_list
-        if self.asset_percent_list == None:
-            asset_percent_list = [ (asset, 1/len(df.columns)) for asset in df.columns ]
-        if 'LIQUID' in [ asset for (asset,p) in asset_percent_list ]:
-            df['LIQUID'] = np.ones(len(df))
-        start_price = df.iloc[ len(df) - self.days_before ]
+        days_before = max([self.days_before, len(df)])
+        asset_percent_list = [ (asset, 1/len(df.columns)) for asset in df.columns ]
+        start_price = df.tail(days_before).iloc[0]
         print(asset_percent_list)
         print('start_price: ' + str(start_price))
         start_investment = [ (asset, self.amount * percent) for (asset, percent) in asset_percent_list ]
@@ -59,11 +51,15 @@ class Portfolio(Transform):
         values = []
         count = 0
         first_time = 0
-        for i in range(len(df)):
-            price = df.iloc[i].to_frame().T
+        for i in range(len(df.tail(days_before))):
+            price = df.tail(days_before).iloc[i].to_frame().T
             #[ print(f'price {asset}: ' + str(price[asset].iat[0])) for (asset, quote_num) in cur_quote_num ]
             cur_value = [ ( asset, quote_num * price[asset].iat[0] ) for (asset, quote_num) in cur_quote_num ]
             total_value = sum([price for (asset, price) in cur_value ])
+            #print('====')
+            #print(cur_value)
+            #print(total_value)
+            #print('====')
             values.append(total_value)
             cur_percentages = [ ( asset, price / total_value ) for (asset, price) in cur_value ]
             perc_diff = [ (asset1, perc - cur_perc) for (asset1, cur_perc) in cur_percentages \
@@ -85,21 +81,24 @@ class Portfolio(Transform):
                     print('new_quotes: ' + str(new_quotes))
                 cur_quote_num = new_quotes
             count += 1
-        print('len(df): ' + str(len(df)))
+        print('len(df): ' + str(len(df.tail(days_before))))
         print('len(values): ' + str(len(values)))
-        new_df = DataFrame(values, columns=['Portfolio'])
+        roi = [ (value - self.amount) / self.amount for value in values ]
+        new_df = DataFrame(list(zip(values, roi)), columns=['Portfolio', 'ROI'])
         #new_df = pd.concat([new_df, df.index], axis=1)
         #new_df['Date'] = new_df['Date'].astype('datetime64')
-        new_df = new_df.set_index(df.index)
-        new_df = pd.concat([new_df, df], axis=1)
+        new_df = new_df.set_index(df.tail(days_before).index)
+        #new_df = pd.concat([new_df, df], axis=1)
 
         # TODO bring out relative plot logic!
-        for c in new_df.columns:
-            try:
-                new_df[c] = new_df[c] / sum(new_df[c]) 
-            except:
-                print(new_df[c])
-        return new_df
+        #for c in new_df.columns:
+        #    try:
+        #        new_df[c] = new_df[c] / max(new_df[c]) 
+        #    except:
+        #        print(new_df[c])
+        print(values[0])
+        print(values[len(values)-1])
+        return DataFrame(new_df['ROI'], columns=['ROI'])
 
     def __str__(self):
         return "Portfolio<"+str(self.rebal_strat)+">"
