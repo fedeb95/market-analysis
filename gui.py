@@ -21,6 +21,11 @@ class Pipeline(Compose):
     def __str__(self):
         return '->'.join([ str(t) for t in self.transforms ])
 
+def onFrameConfigure(canvas):
+    '''Reset the scroll region to encompass the inner frame'''
+    canvas.configure(scrollregion=canvas.bbox("all"))
+
+
 def plot(plot, canvas, asset_entry, pipeline):
     plot.clear()
     print(pipeline.transforms)
@@ -81,17 +86,26 @@ def main():
 		    Portfolio(10000, RebalThreshold(0.1))#, asset_percent_list=[('USDEUR=x',0.5)])
                 ]
     funs = [ (t, lambda e=t: add_to_pipeline(pipeline, e, pipe_label, pipe_plot, canvas, entry)) for t in transforms ]
-    frame = Frame(win)
-    count = 0
-    row = 0
+
+    scroll_frame = Frame(win, borderwidth=1)
+    scroll_canvas = tk.Canvas(scroll_frame, borderwidth=0, background="#ffffff")
+    inner_scroll_frame = tk.Frame(scroll_canvas, background="#ffffff")
+    vsb = tk.Scrollbar(scroll_frame, orient="vertical", command=scroll_canvas.yview)
+    scroll_canvas.configure(yscrollcommand=vsb.set)
+
+    vsb.pack(side="right", fill="y")
+    scroll_canvas.pack(side="left", fill="both", expand=True)
+    scroll_canvas.create_window((4,4), window=inner_scroll_frame, anchor="nw")
+
+    scroll_frame.bind("<Configure>", lambda event, canvas=canvas: onFrameConfigure(scroll_canvas))
+
+    count_row = 0
     for f in funs:
-        if count % 5 == 0:
-            row += 1
         t, fun = f
-        b = Button(frame, width=btn_w, height=btn_h, text=str(t), command=fun)
-        b.grid(row=row, column=count % 5)
-        count += 1
-    frame.pack()
+        b = Button(inner_scroll_frame, width=btn_w, height=btn_h, text=str(t), command=fun)
+        b.grid(row=count_row, column=1)
+        count_row +=1
+    scroll_frame.pack()
 
     ctrl_frame = Frame(win, borderwidth=1)
     clear_btn = Button(ctrl_frame, width=btn_w, height=btn_h, text="Clear pipeline", command=lambda: clear(pipeline, pipe_label))
