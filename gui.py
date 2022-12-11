@@ -43,7 +43,7 @@ def clear(pipeline, label):
 def add_to_pipeline(pipeline, transform, label, plt, canvas, asset_entry):
     pipeline.then(transform)
     label.config(text=str(pipeline)) 
-    plot(plt, canvas, asset_entry, pipeline)
+    #plot(plt, canvas, asset_entry, pipeline)
     
 def main():
     win = tk.Tk()
@@ -105,7 +105,7 @@ def main():
         b = Button(inner_scroll_frame, width=btn_w, height=btn_h, text=str(t), command=fun)
         b.grid(row=count_row, column=1)
         count_row +=1
-    scroll_frame.pack()
+    scroll_frame.pack(side=LEFT, anchor=NW)
 
     ctrl_frame = Frame(win, borderwidth=1)
     clear_btn = Button(ctrl_frame, width=btn_w, height=btn_h, text="Clear pipeline", command=lambda: clear(pipeline, pipe_label))
